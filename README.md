@@ -1,91 +1,111 @@
-# Despliegue de Aplicaciones Java en Apache Tomcat con Maven
+# Despliegue de una aplicación Python con Flask y Gunicorn
 
-**Alumno:** Antonio Benitez Garcia
-
-**Módulo:** Despliegue de Aplicaciones Web
-
+**Alumno:** Antonio Benitez Garcia  
+**Módulo:** Despliegue de Aplicaciones Web  
 **Curso:** 2025-2026
 
 ---
 
 ## 1. Introducción
 
-En esta práctica se documenta el proceso completo de configuración de un servidor de aplicaciones Apache Tomcat sobre una máquina virtual Debian. El objetivo es realizar dos tipos de despliegues: uno manual mediante la interfaz gráfica y otro automatizado utilizando Maven para la aplicación "Rock-Paper-Scissors".
+En esta práctica se documenta el proceso completo de despliegue de una aplicación web basada en Python (Flask) sobre una máquina virtual Debian. El objetivo es configurar un entorno de producción profesional utilizando **Gunicorn** como servidor de aplicaciones WSGI y **Nginx** como proxy inverso, finalizando con un despliegue real desde un repositorio de GitHub.
 
 ---
 
 ## 2. Preparación del Entorno
 
-### Instalación de Java y Tomcat
-El primer paso es la instalación del Kit de Desarrollo de Java (OpenJDK) y el servidor Tomcat 9.
+### Instalación de Paquetes
+El primer paso es la actualización de repositorios y la instalación de las herramientas necesarias: Nginx, Gunicorn, Pipenv y Git, así como el entorno de Python.
 
-![Verificación de la versión de Java](img/instalacion-java.png)
-![Instalación del paquete Tomcat 9](img/instalacion-tomcat9.png)
+![Instalación de paquetes completos](img/installtodo.png)
+![Instalación de herramientas Python](img/install-python.png)
 
-### Creación de Usuarios del Sistema
-Por seguridad, creamos un grupo y usuario específico para ejecutar el servicio.
+Verificamos las versiones para asegurar que el sistema está listo:
 
-![Creación de grupo y usuario para el servicio](img/grupotomcat.png)
+![Versión de Nginx](img/version-ngnic.png)
+![Versiones de Pipenv y Gunicorn](img/version-pipenv-gunicorn.png)
 
-Verificamos que el servicio está activo:
-![Estado del servicio Tomcat](img/statustomcat.png)
+### Configuración de Directorios y Permisos
+Creamos el directorio de la aplicación y ajustamos los permisos para el usuario `vagrant` y el grupo `www-data`.
 
----
-
-## 3. Configuración de Acceso Remoto y Paneles
-
-### Habilitar Acceso Remoto
-Editamos el archivo `context.xml` para permitir conexiones desde fuera de `localhost` y reiniciamos el servicio.
-
-![Edición de context.xml y reinicio del servicio](img/editcontextyrestart.png)
-
-### Usuarios de Administración
-Configuramos el archivo `tomcat-users.xml` asignando los roles `manager-gui` y `manager-script` al usuario "alumno".
-
-![Vista del Manager App](img/manager.png)
+![Creación de carpetas y permisos](img/sudo-cambos.png)
 
 ---
 
-## 4. Despliegue Manual mediante GUI
+## 3. Configuración del Entorno Virtual
 
-Antes de usar Maven, realizamos un despliegue manual para verificar el funcionamiento del gestor de aplicaciones. 
+### Inicialización y Dependencias
+Dentro del directorio del proyecto, instalamos las dependencias (`flask` y `gunicorn`) y activamos el entorno virtual.
 
-1. Accedemos al **Manager App**.
-2. En la sección "Desplegar", seleccionamos el archivo `.war` local (`tomcat1.war`) y pulsamos desplegar.
-
-Como se observa en la siguiente captura, la aplicación `/tomcat1` aparece correctamente listada en la tabla de aplicaciones y su estado es `Running: true`.
-
-![Resultado del despliegue manual en el Manager](img/tomcat1-desplegado.png)
-
-*(Nota: Esta captura demuestra que el despliegue manual se realizó con éxito y el servidor está listo para servir aplicaciones)*.
+![Instalación con Pipenv](img/pipenv-install.png)
+![Activación del entorno virtual](img/pipenv-shell-activado.png)
 
 ---
 
-## 5. Configuración de Maven y Despliegue de Prueba
+## 4. Creación de la Aplicación y Archivos de Configuración
 
-Instalamos Maven y configuramos las credenciales del servidor en el archivo `settings.xml` (o configuración del plugin) para permitir la automatización.
+Creamos y editamos los archivos esenciales: el archivo de entorno `.env`, la aplicación (`application.py`) y el punto de entrada (`wsgi.py`).
 
-![Instalación y versión de Maven](img/mvn.png)
-![Configuración de credenciales](img/tomcat-deploy.png)
+![Configuración del archivo .env](img/cat-.env.png)
 
-Generamos y desplegamos una aplicación básica ("Hola Mundo") para probar la conexión entre Maven y Tomcat.
+**Código de la Aplicación:**
+![Código de application.py](img/flask-import.png)
 
-![Generación de la app de prueba](img/generar-una-app.png)
-![Aplicación de prueba funcionando](img/app-funciona.png)
+**Punto de Entrada (WSGI):**
+![Código de wsgi.py](img/run-nano.png)
+
+### Prueba de Desarrollo
+Antes de configurar el servidor de producción, verificamos que la aplicación arranca correctamente en modo desarrollo.
+
+![Prueba de arranque Flask 0.0.0.0](img/flask-run-0.0.0.0.png)
 
 ---
 
-## 6. Despliegue Final Automatizado: Rock-Paper-Scissors
+## 5. Configuración de Gunicorn (Servidor de Aplicaciones)
 
-Para la tarea final, desplegamos la aplicación "Rock-Paper-Scissors" siguiendo estos pasos:
+Comprobamos que Gunicorn funciona manualmente y localizamos su ruta de instalación dentro del entorno virtual.
 
-1.  Clonado del repositorio GitHub y cambio a la rama `patch-1`.
-2.  Configuración del `pom.xml` añadiendo el plugin `tomcat7-maven-plugin`.
-3.  Ejecución del comando: `mvn tomcat7:deploy`.
+![Ejecución manual de Gunicorn](img/flask-gunicorn.png)
+![Logs de los workers de Gunicorn](img/gunicon-workers.png)
+![Ruta del ejecutable Gunicorn](img/which-qunicorn.png)
 
-### Comprobación Final
+### Automatización con Systemd
+Creamos un servicio del sistema para que la aplicación se ejecute automáticamente en segundo plano.
 
-Accedemos a la ruta desplegada (`/juego`) desde el navegador. La aplicación carga correctamente, mostrando la interfaz del juego "Roshambo", lo que confirma que el despliegue automatizado ha funcionado.
+![Edición del servicio systemd](img/flask-app.service-nano.png)
+![Variables de entorno en el servicio](img/nano-info.png)
 
-![Interfaz del juego funcionando](img/juego-funcionando.png)
+---
 
+## 6. Configuración de Nginx (Proxy Inverso)
+
+Configuramos Nginx para redirigir el tráfico del puerto 80 al socket de nuestra aplicación Flask.
+
+![Edición del archivo de configuración de sitio](img/app-primera-nano.png)
+
+Reiniciamos el servicio y comprobamos su estado:
+
+![Estado del servicio Nginx](img/nginx.png)
+
+### Comprobación del Despliegue Manual
+Accedemos desde el navegador para verificar que la aplicación "Hola Mundo" se ha desplegado correctamente.
+
+![Navegador mostrando App desplegada](img/app-desplegada.png)
+
+---
+
+## 7. Despliegue Final: Repositorio GitHub
+
+Como tarea de ampliación, realizamos el despliegue de una aplicación real clonada desde un repositorio externo ("msdocs-python-flask-webapp-quickstart").
+
+### Clonado y Dependencias
+Clonamos el repositorio y preparamos el entorno.
+
+![Clonado del repositorio git](img/cosas-app-git.png)
+![Listado de archivos de la nueva app](img/cosas-app.png)
+
+### Resultado Final
+Tras reconfigurar los servicios para apuntar a la nueva carpeta, la aplicación de Microsoft Azure carga correctamente, mostrando la pantalla de bienvenida y el funcionamiento tras el login.
+
+![Pantalla de bienvenida Azure](img/app.png)
+![Aplicación funcionando correctamente](img/app-funciona.png)
