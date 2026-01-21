@@ -49,9 +49,11 @@ Creamos y editamos los archivos esenciales: el archivo de entorno `.env`, la apl
 ![Configuración del archivo .env](img/cat-.env.png)
 
 **Código de la Aplicación:**
+
 ![Código de application.py](img/flask-import.png)
 
 **Punto de Entrada (WSGI):**
+
 ![Código de wsgi.py](img/run-nano.png)
 
 ### Prueba de Desarrollo
@@ -67,7 +69,7 @@ Comprobamos que Gunicorn funciona manualmente y localizamos su ruta de instalaci
 
 ![Ejecución manual de Gunicorn](img/flask-gunicorn.png)
 ![Logs de los workers de Gunicorn](img/gunicon-workers.png)
-![Ruta del ejecutable Gunicorn](img/which-qunicorn.png)
+![Ruta del ejecutable Gunicorn](img/which-gunicorn.png)
 
 ### Automatización con Systemd
 Creamos un servicio del sistema para que la aplicación se ejecute automáticamente en segundo plano.
