@@ -69,7 +69,7 @@ Comprobamos que Gunicorn funciona manualmente y localizamos su ruta de instalaci
 
 ![Ejecución manual de Gunicorn](img/flask-gunicorn.png)
 ![Logs de los workers de Gunicorn](img/gunicon-workers.png)
-![Ruta del ejecutable Gunicorn](img/which-gunicorn.png)
+![Ruta del ejecutable Gunicorn](img/which–gunicorn.png)
 
 ### Automatización con Systemd
 Creamos un servicio del sistema para que la aplicación se ejecute automáticamente en segundo plano.
